@@ -4,25 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <style>
-        li {
-            list-style-type: none;
-            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            font-size: 40px;
-            display: block;
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        body > .grid > div {
+            position: absolute;
+            background: black;
         }
     </style>
 </head>
 <body>
-    <ul>
-        <li>This</li>
-        <li>is</li>
-        <li>an</li>
-        <li>stagger</li>
-        <li>cool</li>
-        <li>isn't</li>
-        <li>it?</li>
-        <li>huh?</li>
-    </ul>
+    <div class="grid"></div>
     <div id="root"></div>
 </body>
 </html>
