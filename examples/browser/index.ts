@@ -19,4 +19,4 @@ const stagger = createTheatreStagger('MyList', {
 
 setTimeout(() => {
     stagger.play()
-}, 3000)
+}, 2000)
