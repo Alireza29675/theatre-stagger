@@ -1,0 +1,10 @@
+// TODO: Support multi-dimensional sort of elements (Element[][][])
+// TODO: Enable custom sorting functions
+// TODO: Make more complicated sorting functions
+// TODO: Make pause()
+// TODO: Make stop()
+// TODO: (Maybe) Reverse player, changing the time, evaluating time
+// TODO: Making a helper panel for staggers
+// TODO: Values of different modes will effect each other
+// TODO: add .playing
+// TODO: Make README.md

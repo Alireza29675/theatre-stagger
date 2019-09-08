@@ -1,5 +1,6 @@
 {
   "name": "@theatre/stagger",
+  "private": false,
   "version": "0.1.0",
   "description": "📦 Theatre.js Stagger",
   "main": "lib/index.js",
