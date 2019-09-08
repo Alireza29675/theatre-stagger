@@ -1,5 +1,5 @@
-const rows = 10;
-const cols = 10;
+const rows = 11;
+const cols = 13;
 
 const width = window.innerWidth / cols;
 const height = window.innerHeight / rows;

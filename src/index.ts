@@ -1,5 +1,5 @@
 import { NumberPropTypeDescriptor, Timeline } from 'theatre'
-import { IStaggerOptions, TDefaultSortTypes, TSortFunction, IPlayOptions } from './types';
+import { IPlayOptions, IStaggerOptions, TDefaultSortTypes, TSortFunction } from './types';
 
 const propsArrayToObject = (props: string[]) => {
   const str = `{${props.map((value: string) => `"${value}": { "type": "number" }`)}}`
@@ -11,9 +11,17 @@ const arrToIndex = (array: any[]): number[] => {
 }
 
 const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
+  center: (elements: any[]) => {
+    const steps = []
+    const count = elements.length;
+    for (let i = 0; i < Math.ceil(count / 2); i++) {
+      const side = count - (i + 1);
+      steps.push(side === i ? [i] : [i, count - (i + 1)])
+    }
+    return steps.reverse()
+  },
   normal: (elements: any[]) => arrToIndex(elements),
-  reverse: (elements: any[]) => arrToIndex(elements).reverse(),
-  shuffle: (elements: any[]) => arrToIndex(elements).sort(() => .5 - Math.random())
+  shuffle: (elements: any[]) => arrToIndex(elements).sort(() => .5 - Math.random()),
 }
 
 class TheatreStagger<T> {
@@ -40,14 +48,19 @@ class TheatreStagger<T> {
     })
   }
 
-  public play (options: IPlayOptions = { sort: 'normal' }) {
-    const { sort } = options;
+  public play (options: IPlayOptions = { sort: 'normal', reverse: false, rate: 1 }) {
+    const sort = options.sort || 'normal'
+    const reverse = options.reverse || false
+    const rate = options.rate || 1
     const { elements } = this.options;
     const steps = defaultSortFunctions[sort](elements)
+    if (reverse) { steps.reverse() }
     steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
-        setTimeout(() => this.timelines[i].play(), step * 10);
+        setTimeout(() => this.timelines[i].play({
+          rate
+        }), step * 10);
       }
     })
   }
@@ -64,10 +77,9 @@ class TheatreStagger<T> {
 
 }
 
-
-
 function createTheatreStagger<T = any> (name: string, options: IStaggerOptions<T>){
-  return new TheatreStagger(name, options)
+  const stagger = new TheatreStagger(name, options)
+  return stagger;
 };
 
 export default createTheatreStagger;

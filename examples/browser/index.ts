@@ -9,13 +9,13 @@ const stagger = createTheatreStagger('MyList', {
     elements: getAll(),
     onValueChanges: (item, values: any) => {
         const element = (item as HTMLElement)
-        element.style.transform = `translate(${values.x}px, ${values.y}px)`
+        element.style.transform = `translate3d(0, ${values.y}px, -1px) rotateZ(${values.rotation}deg)`
         element.style.opacity = values.opacity
     },
     project,
-    props: ['x', 'y', 'opacity'],
+    props: ['rotation', 'y', 'opacity'],
 })
 
 setTimeout(() => {
-    stagger.play({ sort: 'normal' })
+    stagger.play({ sort: 'center', reverse: true })
 }, 2000)
