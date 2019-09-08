@@ -48,7 +48,6 @@ class TheatreStagger<T> {
     }
 
     this.timelines = elements.map((element: T, index: number) => {
-      console.log(this.name)
       return this.makeTimeline(element, index);
     })
   }
