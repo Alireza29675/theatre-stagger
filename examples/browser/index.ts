@@ -16,6 +16,10 @@ const stagger = createTheatreStagger('MyList', {
     props: ['rotation', 'y', 'opacity'],
 })
 
+const fadeOut = stagger.getMode('Fade Out');
+const fadeIn = stagger.getMode('Fade In');
+
 setTimeout(() => {
-    stagger.play({ sort: 'center', reverse: true })
+    fadeIn.play({ sort: 'center', reverse: true })
+    fadeOut.play({ sort: 'center', rate: 0.5, delay: 2000 })
 }, 2000)

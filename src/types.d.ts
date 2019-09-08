@@ -20,7 +20,9 @@ type TFilterFunction<T> = (element: T, index: number) => boolean
 type TDefaultSortTypes = ('normal' | 'shuffle' | 'center')
 
 interface IPlayOptions {
+    gap?: number
     sort?: TDefaultSortTypes
     reverse?: boolean
     rate?: number
+    delay?: number
 }

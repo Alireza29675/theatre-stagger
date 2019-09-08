@@ -27,13 +27,17 @@ const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
 class TheatreStagger<T> {
 
   private name: string;
+  private mode: string;
   private options: IStaggerOptions<T>
+  private originalOptions: IStaggerOptions<T>
   private configProps: Record<string, NumberPropTypeDescriptor>
   private timelines: Timeline[]
 
-  constructor (name: string, options: IStaggerOptions<T>) {
+  constructor (name: string, options: IStaggerOptions<T>, mode: string) {
     this.name = name;
+    this.mode = mode;
     this.options = options;
+    this.originalOptions = Object.assign({}, options);
     const { props, filter } = options;
     let elements = options.elements
 
@@ -44,6 +48,7 @@ class TheatreStagger<T> {
     }
 
     this.timelines = elements.map((element: T, index: number) => {
+      console.log(this.name)
       return this.makeTimeline(element, index);
     })
   }
@@ -52,6 +57,8 @@ class TheatreStagger<T> {
     const sort = options.sort || 'normal'
     const reverse = options.reverse || false
     const rate = options.rate || 1
+    const delay = options.delay || 0
+    const gap = options.gap || 30
     const { elements } = this.options;
     const steps = defaultSortFunctions[sort](elements)
     if (reverse) { steps.reverse() }
@@ -60,14 +67,22 @@ class TheatreStagger<T> {
       for (const i of indexes) {
         setTimeout(() => this.timelines[i].play({
           rate
-        }), step * 10);
+        }), delay + (step * gap));
       }
     })
   }
 
+  public getMode (mode: string, additionalOptions: Partial<IStaggerOptions<T>> = {}) {
+    return createTheatreStagger(
+      this.name,
+      Object.assign({}, this.originalOptions, additionalOptions),
+      mode
+    );
+  }
+
   private makeTimeline (element: T, index: number) {
     const { project, onValueChanges } = this.options;
-    const timeline = project.getTimeline(`${this.name}`, `Element ${index}`)
+    const timeline = project.getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
     const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
     theatreObject.onValuesChange((values) => {
       onValueChanges(element, values)
@@ -77,8 +92,9 @@ class TheatreStagger<T> {
 
 }
 
-function createTheatreStagger<T = any> (name: string, options: IStaggerOptions<T>){
-  const stagger = new TheatreStagger(name, options)
+function createTheatreStagger<T = any> (name: string, options: IStaggerOptions<T>, mode: string = 'default'){
+  const stagger = new TheatreStagger(name, options, mode)
+  console.log(name)
   return stagger;
 };
 
