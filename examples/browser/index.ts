@@ -5,21 +5,27 @@ import { getAll } from './grid'
 
 const project = getProject('Stagger Example')
 
-const stagger = createTheatreStagger('MyList', {
-    elements: getAll(),
-    onValueChanges: (item, values: any) => {
-        const element = (item as HTMLElement)
-        element.style.transform = `translate3d(0, ${values.y}px, -1px) rotateZ(${values.rotation}deg)`
-        element.style.opacity = values.opacity
-    },
+const allMyDivs = getAll()
+
+const stagger = createTheatreStagger('AriaTest', {
+    elements: allMyDivs,
     project,
-    props: ['rotation', 'y', 'opacity'],
+    props: ['scale', 'rotation', 'opacity'],
+    onValueChanges: (element, values) => {
+        const el = (element as HTMLDivElement)
+        el.style.transform = `scale(${values.scale}) rotateZ(${values.rotation}deg)`
+        el.style.opacity = values.opacity
+    },
 })
 
-const fadeOut = stagger.getMode('Fade Out');
-const fadeIn = stagger.getMode('Fade In');
+const playButton = document.querySelector('button.play')
+const pauseButton = document.querySelector('button.pause')
 
-setTimeout(() => {
-    fadeIn.play({ sort: 'center', reverse: true })
-    fadeOut.play({ sort: 'center', rate: 0.5, delay: 2000 })
-}, 2000)
+if (playButton && pauseButton) {
+    playButton.addEventListener('click', () => {
+        stagger.play({ sort: 'center', fromBeginning: true })
+    })
+    pauseButton.addEventListener('click', () => {
+        stagger.pause()
+    })
+}

@@ -9,14 +9,42 @@
             margin: 0;
             overflow: hidden;
         }
+        body > .grid {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            perspective-origin: center;
+        }
         body > .grid > div {
             position: absolute;
             background: black;
+            box-sizing: border-box;
+        }
+        .buttons {
+            position: absolute;
+            z-index: 99;
+            color: white;
+            display: flex;
+            flex-direction: row-reverse;
+            top: 50px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .buttons > button {
+            background: rgb(87, 111, 116);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            outline: none;
+            margin: 10px;
         }
     </style>
 </head>
 <body>
     <div class="grid"></div>
-    <div id="root"></div>
+    <div class="buttons">
+        <button class="play">Play</button>
+        <button class="pause">Pause</button>
+    </div>
 </body>
 </html>

@@ -25,4 +25,5 @@ interface IPlayOptions {
     reverse?: boolean
     rate?: number
     delay?: number
+    fromBeginning?: boolean
 }
