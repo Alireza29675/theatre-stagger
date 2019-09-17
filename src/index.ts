@@ -10,6 +10,8 @@ const arrToIndex = (array: any[]): number[] => {
   return array.map((value: any, index: number) => index)
 }
 
+const GUESSED_TIMELINE_DURATION = 2000;
+
 const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
   center: (elements: any[]) => {
     const steps = []
@@ -83,15 +85,21 @@ class TheatreStagger<T> {
       this.steps.reverse()
     }
 
-    if (fromBeginning) { this.stop() };
+    if (fromBeginning) {
+      this.stop()
+    };
+    
     this.steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
         const timeline = this.timelines[i];
+        const timeout = Math.max(0, (delay + (step * gap)) - this.time)
         this.setTimeout(() => {
           this.currentStep = step;
-          timeline.play({ rate })
-        }, delay + (step * gap));
+          if (timeline.time < GUESSED_TIMELINE_DURATION) { // FIXME
+            timeline.play({ rate })
+          }
+        }, timeout);
       }
     })
     this.playing = true
@@ -107,10 +115,9 @@ class TheatreStagger<T> {
     this.playing = false
   }
 
-  public get _experimental_estimatedDuration () {
-    const GUESSED_TIMELINE_DURATION = 2000; // FIXME
+  public get duration () {
     const { delay, gap } = this.currentPlayingOptions
-    return delay + ((this.steps.length - 1) * gap) + GUESSED_TIMELINE_DURATION;
+    return delay + ((this.steps.length - 1) * gap) + GUESSED_TIMELINE_DURATION // FIXME;
   }
 
   public get time () {
@@ -125,6 +132,7 @@ class TheatreStagger<T> {
     const { delay, gap } = this.currentPlayingOptions
     this.steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
+      this.currentStep = 0
       for (const i of indexes) {
         const startTime = delay + (step * gap);
         const timelineTime = Math.max(0, value - startTime);
