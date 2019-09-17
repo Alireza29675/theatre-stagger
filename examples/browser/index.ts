@@ -10,28 +10,15 @@ const allMyCells = getAll()
 const stagger = createTheatreStagger('AriaTest', {
     elements: allMyCells,
     onValueChanges: (element, values) => {
-        const el = (element as HTMLDivElement)
-        el.style.transform = `scale(${values.scale}) rotateZ(${values.rotation}deg)`
-        el.style.opacity = values.opacity
+        const el = (element as HTMLDivElement);
+        el.style.transform = `scale(${values.scale}) rotateZ(${values.rotation}deg)`;
+        el.style.opacity = values.opacity;
     },
     project,
-    props: ['scale', 'rotation', 'opacity'],
-})
+    props: ['scale', 'rotation', 'opacity']
+});
 
-const playButton = document.querySelector('button.play')
-const pauseButton = document.querySelector('button.pause')
-const stopButton = document.querySelector('button.stop')
+const blink = stagger.clone('Blink');
 
-if (playButton && pauseButton && stopButton) {
-    playButton.addEventListener('click', () => {
-        stagger.play({ sort: 'center' })
-    })
-    pauseButton.addEventListener('click', () => {
-        stagger.pause()
-    })
-    stopButton.addEventListener('click', () => {
-        stagger.stop()
-    })
-}
-
-(window as any).stagger = stagger
+(window as any).stagger = stagger;
+(window as any).blink = blink;

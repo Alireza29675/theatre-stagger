@@ -1,9 +1,16 @@
 import { Project } from 'theatre'
 
-interface IStagger {
-    play: () => void
+type $IntentionalAny = any
+type $FixMe = any
+type $FixMeNow = any
+
+interface ITheatreStaggerFinalAPI {
+    play: (options?: Partial<IPlayOptions>) => void
 	pause: () => void
     stop: () => void
+    clone: (newMode: string) => ITheatreStaggerFinalAPI
+    time: number
+    playing: boolean
 }
 
 interface IStaggerOptions<T> {
@@ -27,3 +34,5 @@ interface IPlayOptions {
     delay: number
     mode: ('reset' | 'continue' | 'blend')
 }
+
+type TCreateTheatreStagger = (name: string, options: IStaggerOptions<T>, mode?: string) => ITheatreStaggerFinalAPI

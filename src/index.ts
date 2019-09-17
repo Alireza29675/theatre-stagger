@@ -1,19 +1,19 @@
-import { NumberPropTypeDescriptor, Timeline, getProject } from 'theatre'
-import { IPlayOptions, IStaggerOptions, TDefaultSortTypes, TSortFunction } from './types';
+import { getProject, NumberPropTypeDescriptor, Project, Timeline } from 'theatre'
+import { $IntentionalAny, IPlayOptions, IStaggerOptions, ITheatreStaggerFinalAPI, TCreateTheatreStagger, TDefaultSortTypes, TSortFunction, $FixMe } from './types';
 
 const propsArrayToObject = (props: string[]) => {
   const str = `{${props.map((value: string) => `"${value}": { "type": "number" }`)}}`
   return JSON.parse(str) as Record<string, NumberPropTypeDescriptor>;
 }
 
-const arrToIndex = (array: any[]): number[] => {
-  return array.map((value: any, index: number) => index)
+const arrToIndex = <T = $IntentionalAny>(array: T[]): number[] => {
+  return array.map((value: T, index: number) => index)
 }
 
 const GUESSED_TIMELINE_DURATION = 2000;
 
-const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
-  center: (elements: any[]) => {
+const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<$IntentionalAny>> = {
+  center: (elements: $IntentionalAny[]) => {
     const steps = []
     const count = elements.length;
     for (let i = 0; i < Math.ceil(count / 2); i++) {
@@ -22,8 +22,8 @@ const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
     }
     return steps.reverse()
   },
-  normal: (elements: any[]) => arrToIndex(elements),
-  shuffle: (elements: any[]) => arrToIndex(elements).sort(() => .5 - Math.random()),
+  normal: (elements: $IntentionalAny[]) => arrToIndex(elements),
+  shuffle: (elements: $IntentionalAny[]) => arrToIndex(elements).sort(() => .5 - Math.random()),
 }
 
 const DEFAULT_PLAY_OPTIONS: IPlayOptions = {
@@ -35,7 +35,7 @@ const DEFAULT_PLAY_OPTIONS: IPlayOptions = {
   sort: 'center',
 }
 
-const DEFAULT_STAGGER_OPTIONS: Partial<IStaggerOptions<any>> = {
+const DEFAULT_STAGGER_OPTIONS: Partial<IStaggerOptions<$IntentionalAny>> = {
 
 }
 
@@ -65,7 +65,7 @@ class TheatreStagger<T> {
     const { props, filter, onValueChanges } = this.options;
     let { project, elements } = this.options
 
-    project = typeof project === 'string' ? getProject(project) : project
+    project = (typeof project === 'string') ? getProject(project) : project
 
     this.configProps = propsArrayToObject(props)
 
@@ -74,9 +74,9 @@ class TheatreStagger<T> {
 
     this.timelines = []
     elements.forEach((element: T, index: number) => {
-      const timeline = project.getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
+      const timeline = (project as Project).getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
       const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
-      theatreObject.onValuesChange((values) => onValueChanges(element, values))
+      theatreObject.onValuesChange((values: $FixMe) => onValueChanges(element, values))
       this.timelines.push(timeline)
     })
   }
@@ -192,9 +192,21 @@ class TheatreStagger<T> {
 
 
 
-function createTheatreStagger<T = any> (name: string, options: IStaggerOptions<T>, mode: string = 'default'){
+const createTheatreStagger: TCreateTheatreStagger = (name, options, mode = 'default') => {
   const stagger = new TheatreStagger(name, options, mode)
-  return stagger;
+  const api: ITheatreStaggerFinalAPI = {
+    clone: (newMode) => createTheatreStagger(name, options, newMode),
+    pause: () => stagger.pause(),
+    play: (playOptions) => stagger.play(playOptions),
+    playing: false,
+    stop: () => stagger.stop(),
+    time: 0,
+  }
+  Object.defineProperty(api, 'time', {
+    get: () => stagger.time,
+    set: (value: number) => stagger.time = value
+  })
+  return api
 };
 
-export default createTheatreStagger;
+export default createTheatreStagger
