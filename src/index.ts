@@ -47,6 +47,7 @@ class TheatreStagger<T> {
   private configProps: Record<string, NumberPropTypeDescriptor>
   private timelines: Timeline[] = []
   private steps: number[] | number[][] = []
+  private currentStep: number = 0
 
   private timeouts: NodeJS.Timeout[] = []
 
@@ -72,7 +73,7 @@ class TheatreStagger<T> {
       ...DEFAULT_PLAY_OPTIONS,
       ...options
     }
-    const { reverse, rate, delay, fromBeginning, gap, sort } = this.currentPlayingOptions
+    const { reverse, rate, delay, fromBeginning, gap } = this.currentPlayingOptions
 
     // this.calculateSteps()
     if (reverse) {
@@ -84,7 +85,10 @@ class TheatreStagger<T> {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
         const timeline = this.timelines[i];
-        this.setTimeout(() => { timeline.play({ rate }) }, delay + (step * gap));
+        this.setTimeout(() => {
+          this.currentStep = step;
+          timeline.play({ rate })
+        }, delay + (step * gap));
       }
     })
   }
@@ -98,13 +102,25 @@ class TheatreStagger<T> {
     })
   }
 
+  public get time () {
+    const { delay, gap } = this.currentPlayingOptions
+    const stepTime = delay + (this.currentStep * gap);
+    const step = this.steps[this.currentStep]
+    const playingTimeline: Timeline = (typeof step === 'number') ? this.timelines[step] : this.timelines[step[0]];
+    return stepTime + playingTimeline.time
+  }
+
   public set time (value: number) {
     const { delay, gap } = this.currentPlayingOptions
     this.steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
         const startTime = delay + (step * gap);
-        this.timelines[i].time = Math.max(0, value - startTime)
+        const timelineTime = Math.max(0, value - startTime);
+        this.timelines[i].time = timelineTime
+        if (timelineTime > 0) {
+          this.currentStep = step;
+        }
       }
     })
   }
