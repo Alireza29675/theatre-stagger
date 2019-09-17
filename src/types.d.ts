@@ -11,7 +11,6 @@ interface IStaggerOptions<T> {
     elements: Array<T>
     props: string[]
     onValueChanges: (element: T, values: any) => void
-    sort?: TDefaultSortTypes | TSortFunction
     filter?: TFilterFunction
 }
 
@@ -21,9 +20,10 @@ type TFilterFunction<T> = (element: T, index: number) => boolean
 type TDefaultSortTypes = ('normal' | 'shuffle' | 'center')
 
 interface IPlayOptions {
-    gap?: number
-    reverse?: boolean
-    rate?: number
-    delay?: number
-    fromBeginning?: boolean
+    gap: number
+    sort: TDefaultSortTypes | TSortFunction
+    reverse: boolean
+    rate: number
+    delay: number
+    fromBeginning: boolean
 }

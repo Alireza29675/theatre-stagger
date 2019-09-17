@@ -24,16 +24,17 @@ const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
   shuffle: (elements: any[]) => arrToIndex(elements).sort(() => .5 - Math.random()),
 }
 
-const DEFAULT_PLAY_OPTIONS = {
+const DEFAULT_PLAY_OPTIONS: IPlayOptions = {
   delay: 0,
   fromBeginning: false,
   gap: 30,
   rate: 1,
   reverse: false,
+  sort: 'center',
 }
 
-const DEFAULT_STAGGER_OPTIONS = {
-  sort: 'normal'
+const DEFAULT_STAGGER_OPTIONS: Partial<IStaggerOptions<any>> = {
+
 }
 
 class TheatreStagger<T> {
@@ -42,9 +43,10 @@ class TheatreStagger<T> {
   private mode: string;
   private options: IStaggerOptions<T>
   private originalOptions: IStaggerOptions<T>
+  private currentPlayingOptions: IPlayOptions = DEFAULT_PLAY_OPTIONS
   private configProps: Record<string, NumberPropTypeDescriptor>
   private timelines: Timeline[] = []
-  private steps: number[] | number[][]
+  private steps: number[] | number[][] = []
 
   private timeouts: NodeJS.Timeout[] = []
 
@@ -54,23 +56,31 @@ class TheatreStagger<T> {
     this.originalOptions = options;
     this.options = {...DEFAULT_STAGGER_OPTIONS, ...options};
 
-    const { props, filter, sort } = this.options;
+    const { props, filter } = this.options;
     let { elements } = this.options
 
     this.configProps = propsArrayToObject(props)
-    this.steps = this.getSteps(sort, elements)
 
     if (filter) { elements = elements.filter(filter) }
+    this.calculateSteps()
 
     elements.forEach((element: T, index: number) => this.makeTimeline(element, index))
   }
 
-  public play (options: IPlayOptions) {
-    const { reverse, rate, delay, fromBeginning, gap } = { ...DEFAULT_PLAY_OPTIONS, ...options }
-    const steps = [...this.steps];
-    if (reverse) { steps.reverse() }
+  public play (options: Partial<IPlayOptions> = {}) {
+    this.currentPlayingOptions = {
+      ...DEFAULT_PLAY_OPTIONS,
+      ...options
+    }
+    const { reverse, rate, delay, fromBeginning, gap, sort } = this.currentPlayingOptions
+
+    // this.calculateSteps()
+    if (reverse) {
+      this.steps.reverse()
+    }
+
     if (fromBeginning) { this.stop() };
-    steps.forEach((index: number | number[], step: number) => {
+    this.steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
         const timeline = this.timelines[i];
@@ -87,6 +97,17 @@ class TheatreStagger<T> {
       }
     })
   }
+
+  public set time (value: number) {
+    const { delay, gap } = this.currentPlayingOptions
+    this.steps.forEach((index: number | number[], step: number) => {
+      const indexes = (typeof index === 'number') ? [index] : index
+      for (const i of indexes) {
+        const startTime = delay + (step * gap);
+        this.timelines[i].time = Math.max(0, value - startTime)
+      }
+    })
+  }
   
   public stop () {
     this.clearAllTimeouts()
@@ -95,11 +116,14 @@ class TheatreStagger<T> {
     }
   }
 
-  private getSteps (sort: TDefaultSortTypes | TSortFunction<any>, elements: any[]) {
+  private calculateSteps () {
+    const { sort } = this.currentPlayingOptions
+    const { elements } = this.options
     if (typeof sort === 'string') {
-      return defaultSortFunctions[sort](elements)
+      this.steps = defaultSortFunctions[sort as TDefaultSortTypes](elements)
+      return;
     }
-    return sort(elements)
+    this.steps = sort(elements)
   }
 
   private setTimeout (cb: () => void, time: number) {
@@ -117,9 +141,7 @@ class TheatreStagger<T> {
     const { project, onValueChanges } = this.options;
     const timeline = project.getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
     const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
-    theatreObject.onValuesChange((values) => {
-      onValueChanges(element, values)
-    })
+    theatreObject.onValuesChange((values) => onValueChanges(element, values))
     this.timelines.push(timeline)
     return timeline;
   }

@@ -5,10 +5,10 @@ import { getAll } from './grid'
 
 const project = getProject('Stagger Example')
 
-const allMyDivs = getAll()
+const allMyCells = getAll()
 
 const stagger = createTheatreStagger('AriaTest', {
-    elements: allMyDivs,
+    elements: allMyCells,
     onValueChanges: (element, values) => {
         const el = (element as HTMLDivElement)
         el.style.transform = `scale(${values.scale}) rotateZ(${values.rotation}deg)`
@@ -16,7 +16,6 @@ const stagger = createTheatreStagger('AriaTest', {
     },
     project,
     props: ['scale', 'rotation', 'opacity'],
-    sort: 'shuffle',
 })
 
 const playButton = document.querySelector('button.play')
@@ -25,7 +24,7 @@ const stopButton = document.querySelector('button.stop')
 
 if (playButton && pauseButton && stopButton) {
     playButton.addEventListener('click', () => {
-        stagger.play({ fromBeginning: true })
+        stagger.play({ sort: 'center' })
     })
     pauseButton.addEventListener('click', () => {
         stagger.pause()
@@ -34,3 +33,5 @@ if (playButton && pauseButton && stopButton) {
         stagger.stop()
     })
 }
+
+(window as any).stagger = stagger
