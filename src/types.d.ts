@@ -11,7 +11,7 @@ interface IStaggerOptions<T> {
     elements: Array<T>
     props: string[]
     onValueChanges: (element: T, values: any) => void
-    sort?: TDefaultSortTypes
+    sort?: TDefaultSortTypes | TSortFunction
     filter?: TFilterFunction
 }
 

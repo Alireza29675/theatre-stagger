@@ -24,6 +24,18 @@ const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
   shuffle: (elements: any[]) => arrToIndex(elements).sort(() => .5 - Math.random()),
 }
 
+const DEFAULT_PLAY_OPTIONS = {
+  delay: 0,
+  fromBeginning: false,
+  gap: 30,
+  rate: 1,
+  reverse: false,
+}
+
+const DEFAULT_STAGGER_OPTIONS = {
+  sort: 'normal'
+}
+
 class TheatreStagger<T> {
 
   private name: string;
@@ -32,37 +44,30 @@ class TheatreStagger<T> {
   private originalOptions: IStaggerOptions<T>
   private configProps: Record<string, NumberPropTypeDescriptor>
   private timelines: Timeline[] = []
+  private steps: number[] | number[][]
 
   private timeouts: NodeJS.Timeout[] = []
 
   constructor (name: string, options: IStaggerOptions<T>, mode: string) {
     this.name = name;
     this.mode = mode;
-    this.options = options;
-    this.originalOptions = Object.assign({}, options);
-    const { props, filter } = options;
-    let elements = options.elements
+    this.originalOptions = options;
+    this.options = {...DEFAULT_STAGGER_OPTIONS, ...options};
+
+    const { props, filter, sort } = this.options;
+    let { elements } = this.options
 
     this.configProps = propsArrayToObject(props)
+    this.steps = this.getSteps(sort, elements)
 
-    if (filter) {
-      elements = elements.filter(filter)
-    }
+    if (filter) { elements = elements.filter(filter) }
 
-    elements.forEach((element: T, index: number) => {
-      return this.makeTimeline(element, index);
-    })
+    elements.forEach((element: T, index: number) => this.makeTimeline(element, index))
   }
 
-  public play (options: IPlayOptions = { sort: 'normal', reverse: false, rate: 1, fromBeginning: false }) {
-    const sort = options.sort || 'normal'
-    const reverse = options.reverse || false
-    const rate = options.rate || 1
-    const delay = options.delay || 0
-    const fromBeginning = options.fromBeginning || false
-    const gap = options.gap || 30
-    const { elements } = this.options;
-    const steps = defaultSortFunctions[sort](elements)
+  public play (options: IPlayOptions) {
+    const { reverse, rate, delay, fromBeginning, gap } = { ...DEFAULT_PLAY_OPTIONS, ...options }
+    const steps = [...this.steps];
     if (reverse) { steps.reverse() }
     if (fromBeginning) { this.stop() };
     steps.forEach((index: number | number[], step: number) => {
@@ -90,12 +95,11 @@ class TheatreStagger<T> {
     }
   }
 
-  public getMode (mode: string, additionalOptions: Partial<IStaggerOptions<T>> = {}) {
-    return createTheatreStagger(
-      this.name,
-      Object.assign({}, this.originalOptions, additionalOptions),
-      mode
-    );
+  private getSteps (sort: TDefaultSortTypes | TSortFunction<any>, elements: any[]) {
+    if (typeof sort === 'string') {
+      return defaultSortFunctions[sort](elements)
+    }
+    return sort(elements)
   }
 
   private setTimeout (cb: () => void, time: number) {
@@ -131,7 +135,6 @@ class TheatreStagger<T> {
 
 function createTheatreStagger<T = any> (name: string, options: IStaggerOptions<T>, mode: string = 'default'){
   const stagger = new TheatreStagger(name, options, mode)
-  console.log(name)
   return stagger;
 };
 
