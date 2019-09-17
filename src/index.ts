@@ -38,11 +38,14 @@ const DEFAULT_STAGGER_OPTIONS: Partial<IStaggerOptions<any>> = {
 }
 
 class TheatreStagger<T> {
+  
+  public playing: boolean = false
 
   private name: string;
   private mode: string;
   private options: IStaggerOptions<T>
   private originalOptions: IStaggerOptions<T>
+  private previousSortingMethod?: IPlayOptions['sort']
   private currentPlayingOptions: IPlayOptions = DEFAULT_PLAY_OPTIONS
   private configProps: Record<string, NumberPropTypeDescriptor>
   private timelines: Timeline[] = []
@@ -75,7 +78,7 @@ class TheatreStagger<T> {
     }
     const { reverse, rate, delay, fromBeginning, gap } = this.currentPlayingOptions
 
-    // this.calculateSteps()
+    this.calculateSteps()
     if (reverse) {
       this.steps.reverse()
     }
@@ -91,6 +94,7 @@ class TheatreStagger<T> {
         }, delay + (step * gap));
       }
     })
+    this.playing = true
   }
 
   public pause () {
@@ -100,6 +104,7 @@ class TheatreStagger<T> {
         timeline.pause()
       }
     })
+    this.playing = false
   }
 
   public get time () {
@@ -123,22 +128,26 @@ class TheatreStagger<T> {
         }
       }
     })
+    this.playing = false;
   }
   
   public stop () {
     this.clearAllTimeouts()
-    for (const timeline of this.timelines) {
-      timeline.time = 0;
-    }
+    this.time = 0;
+    this.playing = false;
   }
 
   private calculateSteps () {
     const { sort } = this.currentPlayingOptions
+    if (this.previousSortingMethod === sort) {
+      return;
+    }
     const { elements } = this.options
     if (typeof sort === 'string') {
       this.steps = defaultSortFunctions[sort as TDefaultSortTypes](elements)
       return;
     }
+    this.previousSortingMethod = sort
     this.steps = sort(elements)
   }
 
@@ -166,7 +175,6 @@ class TheatreStagger<T> {
     for (const timeout of this.timeouts) { this.removeTimeout(timeout) }
     this.timeouts = []
   }
-
 }
 
 
