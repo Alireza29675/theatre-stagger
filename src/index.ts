@@ -107,6 +107,12 @@ class TheatreStagger<T> {
     this.playing = false
   }
 
+  public get _experimental_estimatedDuration () {
+    const GUESSED_TIMELINE_DURATION = 2000; // FIXME
+    const { delay, gap } = this.currentPlayingOptions
+    return delay + ((this.steps.length - 1) * gap) + GUESSED_TIMELINE_DURATION;
+  }
+
   public get time () {
     const { delay, gap } = this.currentPlayingOptions
     const stepTime = delay + (this.currentStep * gap);

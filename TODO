@@ -1,8 +1,7 @@
 // TODO: Support multi-dimensional sort of elements (Element[][][])
 // TODO: Enable custom sorting functions
 // TODO: Make more complicated sorting functions
-// TODO: Make pause()
-// TODO: Make stop()
+// TODO: play must continue pause (otherwise fromBeginning is true)
 // TODO: (Maybe) Reverse player, changing the time, evaluating time
 // TODO: Making a helper panel for staggers
 // TODO: Values of different modes will effect each other
