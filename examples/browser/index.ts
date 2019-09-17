@@ -20,12 +20,16 @@ const stagger = createTheatreStagger('AriaTest', {
 
 const playButton = document.querySelector('button.play')
 const pauseButton = document.querySelector('button.pause')
+const stopButton = document.querySelector('button.stop')
 
-if (playButton && pauseButton) {
+if (playButton && pauseButton && stopButton) {
     playButton.addEventListener('click', () => {
         stagger.play({ sort: 'center', fromBeginning: true })
     })
     pauseButton.addEventListener('click', () => {
         stagger.pause()
+    })
+    stopButton.addEventListener('click', () => {
+        stagger.stop()
     })
 }

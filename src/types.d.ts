@@ -1,16 +1,17 @@
 import { Project } from 'theatre'
 
 interface IStagger {
-    play: () => void,
-	pause: () => void,
+    play: () => void
+	pause: () => void
     stop: () => void
 }
 
 interface IStaggerOptions<T> {
-    project: Project,
-    elements: Array<T>,
-    props: string[],
-    onValueChanges: (element: T, values: any) => void,
+    project: Project
+    elements: Array<T>
+    props: string[]
+    onValueChanges: (element: T, values: any) => void
+    sort?: TDefaultSortTypes
     filter?: TFilterFunction
 }
 
@@ -21,7 +22,6 @@ type TDefaultSortTypes = ('normal' | 'shuffle' | 'center')
 
 interface IPlayOptions {
     gap?: number
-    sort?: TDefaultSortTypes
     reverse?: boolean
     rate?: number
     delay?: number

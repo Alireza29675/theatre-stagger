@@ -31,7 +31,7 @@ class TheatreStagger<T> {
   private options: IStaggerOptions<T>
   private originalOptions: IStaggerOptions<T>
   private configProps: Record<string, NumberPropTypeDescriptor>
-  private timelines: Timeline[]
+  private timelines: Timeline[] = []
 
   private timeouts: NodeJS.Timeout[] = []
 
@@ -49,7 +49,7 @@ class TheatreStagger<T> {
       elements = elements.filter(filter)
     }
 
-    this.timelines = elements.map((element: T, index: number) => {
+    elements.forEach((element: T, index: number) => {
       return this.makeTimeline(element, index);
     })
   }
@@ -64,23 +64,30 @@ class TheatreStagger<T> {
     const { elements } = this.options;
     const steps = defaultSortFunctions[sort](elements)
     if (reverse) { steps.reverse() }
-    if (fromBeginning) {
-      this.clearAllTimeouts()
-    }
+    if (fromBeginning) { this.stop() };
     steps.forEach((index: number | number[], step: number) => {
       const indexes = (typeof index === 'number') ? [index] : index
       for (const i of indexes) {
         const timeline = this.timelines[i];
-        if (fromBeginning) {
-          timeline.time = 0;
-        }
         this.setTimeout(() => { timeline.play({ rate }) }, delay + (step * gap));
       }
     })
   }
 
-  pause () {
+  public pause () {
+    this.clearAllTimeouts();
+    this.timelines.forEach((timeline) => {
+      if (timeline.playing) {
+        timeline.pause()
+      }
+    })
+  }
+  
+  public stop () {
     this.clearAllTimeouts()
+    for (const timeline of this.timelines) {
+      timeline.time = 0;
+    }
   }
 
   public getMode (mode: string, additionalOptions: Partial<IStaggerOptions<T>> = {}) {
@@ -99,9 +106,7 @@ class TheatreStagger<T> {
   }
 
   private removeTimeout (timeout: NodeJS.Timeout) {
-    console.log(this.timeouts)
     clearTimeout(timeout)
-    this.timeouts.splice(this.timeouts.indexOf(timeout), 1)
   }
 
   private makeTimeline (element: T, index: number) {
@@ -111,11 +116,13 @@ class TheatreStagger<T> {
     theatreObject.onValuesChange((values) => {
       onValueChanges(element, values)
     })
+    this.timelines.push(timeline)
     return timeline;
   }
 
   private clearAllTimeouts () {
     for (const timeout of this.timeouts) { this.removeTimeout(timeout) }
+    this.timeouts = []
   }
 
 }
