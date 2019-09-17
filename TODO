@@ -1,3 +1,4 @@
+// TODO: API (Promise) for recognizing if animation has been finished
 // TODO: Support multi-dimensional sort of elements (Element[][][])
 // TODO: Make more complicated sorting functions
 // TODO: Making a helper panel for staggers
@@ -5,6 +6,7 @@
 // TODO: Make README.md
 // FIXME: type any to semantic any
 // TODO: Project can be string
+// TODO: Clone
 
 
 

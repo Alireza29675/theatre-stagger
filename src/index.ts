@@ -28,8 +28,8 @@ const defaultSortFunctions: Record<TDefaultSortTypes, TSortFunction<any>> = {
 
 const DEFAULT_PLAY_OPTIONS: IPlayOptions = {
   delay: 0,
-  fromBeginning: false,
   gap: 30,
+  mode: 'continue',
   rate: 1,
   reverse: false,
   sort: 'center',
@@ -78,14 +78,14 @@ class TheatreStagger<T> {
       ...DEFAULT_PLAY_OPTIONS,
       ...options
     }
-    const { reverse, rate, delay, fromBeginning, gap } = this.currentPlayingOptions
+    const { reverse, rate, delay, mode, gap } = this.currentPlayingOptions
 
     this.calculateSteps()
     if (reverse) {
       this.steps.reverse()
     }
 
-    if (fromBeginning) {
+    if (mode === 'reset') {
       this.stop()
     };
     
