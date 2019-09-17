@@ -1,4 +1,4 @@
-import { NumberPropTypeDescriptor, Timeline } from 'theatre'
+import { NumberPropTypeDescriptor, Timeline, getProject } from 'theatre'
 import { IPlayOptions, IStaggerOptions, TDefaultSortTypes, TSortFunction } from './types';
 
 const propsArrayToObject = (props: string[]) => {
@@ -50,7 +50,7 @@ class TheatreStagger<T> {
   private previousSortingMethod?: IPlayOptions['sort']
   private currentPlayingOptions: IPlayOptions = DEFAULT_PLAY_OPTIONS
   private configProps: Record<string, NumberPropTypeDescriptor>
-  private timelines: Timeline[] = []
+  private timelines: Timeline[]
   private steps: number[] | number[][] = []
   private currentStep: number = 0
 
@@ -62,15 +62,23 @@ class TheatreStagger<T> {
     this.originalOptions = options;
     this.options = {...DEFAULT_STAGGER_OPTIONS, ...options};
 
-    const { props, filter } = this.options;
-    let { elements } = this.options
+    const { props, filter, onValueChanges } = this.options;
+    let { project, elements } = this.options
+
+    project = typeof project === 'string' ? getProject(project) : project
 
     this.configProps = propsArrayToObject(props)
 
     if (filter) { elements = elements.filter(filter) }
     this.calculateSteps()
 
-    elements.forEach((element: T, index: number) => this.makeTimeline(element, index))
+    this.timelines = []
+    elements.forEach((element: T, index: number) => {
+      const timeline = project.getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
+      const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
+      theatreObject.onValuesChange((values) => onValueChanges(element, values))
+      this.timelines.push(timeline)
+    })
   }
 
   public play (options: Partial<IPlayOptions> = {}) {
@@ -174,15 +182,6 @@ class TheatreStagger<T> {
 
   private removeTimeout (timeout: NodeJS.Timeout) {
     clearTimeout(timeout)
-  }
-
-  private makeTimeline (element: T, index: number) {
-    const { project, onValueChanges } = this.options;
-    const timeline = project.getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
-    const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
-    theatreObject.onValuesChange((values) => onValueChanges(element, values))
-    this.timelines.push(timeline)
-    return timeline;
   }
 
   private clearAllTimeouts () {

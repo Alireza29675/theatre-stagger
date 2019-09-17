@@ -7,7 +7,7 @@ interface IStagger {
 }
 
 interface IStaggerOptions<T> {
-    project: Project
+    project: Project | string
     elements: Array<T>
     props: string[]
     onValueChanges: (element: T, values: any) => void
