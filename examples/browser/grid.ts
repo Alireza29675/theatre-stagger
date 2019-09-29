@@ -1,12 +1,12 @@
-const rows = 11;
-const cols = 13;
+const rows = 11
+const cols = 13
 
-const width = window.innerWidth / cols;
-const height = window.innerHeight / rows;
+const width = window.innerWidth / cols
+const height = window.innerHeight / rows
 
-const size = Math.min(width, height) - 10;
+const size = Math.min(width, height) - 10
 
-type TCell = HTMLDivElement;
+type TCell = HTMLDivElement
 type TColumn = TCell[]
 type TGrid = TColumn[]
 
@@ -18,10 +18,10 @@ for (let i = 0; i < cols; i++) {
     const column: TColumn = []
     for (let j = 0; j < rows; j++) {
         const element = document.createElement('div')
-        element.style.width = size + 'px';
-        element.style.height = size + 'px';
-        element.style.top = (j * height) + ((height - size)/2) + 'px';
-        element.style.left = (i * width) + ((width - size)/2) + 'px';
+        element.style.width = size + 'px'
+        element.style.height = size + 'px'
+        element.style.top = j * height + (height - size) / 2 + 'px'
+        element.style.left = i * width + (width - size) / 2 + 'px'
         if (gridContainer) {
             gridContainer.appendChild(element)
             column.push(element)
@@ -34,11 +34,11 @@ export const getRow = (i: number) => {
     return grid[i]
 }
 export const getAll = () => {
-    const cells: TColumn = [];
+    const cells: TColumn = []
     grid.forEach((column: TColumn) => {
         column.forEach((cell: TCell) => {
             cells.push(cell)
         })
     })
-    return cells;
+    return cells
 }

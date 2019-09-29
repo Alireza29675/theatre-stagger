@@ -13,11 +13,13 @@ interface ITheatreStaggerFinalAPI {
   playing: boolean;
 }
 
+type TMiddleware<T = any> = (element: T, values: any, next?: () => void) => void
+
 interface IStaggerOptions<T> {
   project: Project | string;
   elements: Array<T>;
   props: string[];
-  onValueChanges: (element: T, values: any) => void;
+  onValueChanges: TMiddleware<T>
   filter?: TFilterFunction;
 }
 

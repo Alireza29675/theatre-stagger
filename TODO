@@ -4,8 +4,8 @@
 // TODO: Making a helper panel for staggers
 // TODO: Values of different modes will effect each other ***
 // TODO: Make README.md
-
-
+// TODO: function as options { rate: () => Math.random() }
+// TODO: Refactor code + Cleaning
 
 -----------------------------------------------
 Make a real text effect mimicking an existing text effect
