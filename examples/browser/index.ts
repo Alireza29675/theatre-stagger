@@ -28,7 +28,7 @@ const transformMiddleware: TMiddleware<HTMLDivElement> = {
     },
 }
 
-const stagger = createTheatreStagger('AriaTest', {
+const stagger = createTheatreStagger('Test', {
     project,
     elements: allMyCells,
     middlewares: [opacityMiddleware, transformMiddleware],
