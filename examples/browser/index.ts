@@ -2,21 +2,36 @@ import { getProject } from 'theatre'
 import createTheatreStagger from '../../src'
 
 import { getAll } from './grid'
+import { TMiddleware } from '../../src/types'
+
+const $ = (q: string) => document.querySelector(q)
 
 const project = getProject('Stagger Example')
 
 const allMyCells = getAll()
 
-const stagger = createTheatreStagger('AriaTest', {
-    elements: allMyCells,
+const opacityMiddleware: TMiddleware<HTMLDivElement> = {
+    props: ['opacity'],
     onValueChanges: (element, values, next) => {
-        const { scale, rotation, opacity } = values
-        const el = element as HTMLDivElement
-        el.style.transform = `scale(${scale}) rotateZ(${rotation}deg)`
-        el.style.opacity = opacity
+        const { opacity } = values
+        element.style.opacity = opacity
+        next()
     },
+}
+
+const transformMiddleware: TMiddleware<HTMLDivElement> = {
+    props: ['scale', 'rotation'],
+    onValueChanges: (element, values, next) => {
+        const { scale, rotation } = values
+        element.style.transform = `rotate(${rotation}deg) scale(${scale})`
+        next()
+    },
+}
+
+const stagger = createTheatreStagger('AriaTest', {
     project,
-    props: ['scale', 'rotation', 'opacity'],
+    elements: allMyCells,
+    middlewares: [opacityMiddleware, transformMiddleware],
 })
 
 const blink = stagger.clone('Blink')

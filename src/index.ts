@@ -8,7 +8,6 @@ import {
     TCreateTheatreStagger,
     TDefaultSortTypes,
     TSortFunction,
-    TMiddleware,
 } from './types'
 
 const propsArrayToObject = (props: string[]) => {
@@ -53,25 +52,30 @@ class TheatreStagger<T> {
     private name: string
     private mode: string
     private options: IStaggerOptions<T>
-    private originalOptions: IStaggerOptions<T>
     private previousSortingMethod?: IPlayOptions['sort']
     private currentPlayingOptions: IPlayOptions = DEFAULT_PLAY_OPTIONS
     private configProps: Record<string, NumberPropTypeDescriptor>
     private timelines: Timeline[]
     private steps: number[] | number[][] = []
     private currentStep: number = 0
-    private middlewares: TMiddleware[] = []
 
     private timeouts: NodeJS.Timeout[] = []
 
     constructor(name: string, options: IStaggerOptions<T>, mode: string) {
         this.name = name
         this.mode = mode
-        this.originalOptions = options
         this.options = { ...DEFAULT_STAGGER_OPTIONS, ...options }
 
-        const { props, filter, onValueChanges } = this.options
+        const { filter, middlewares } = this.options
         let { project, elements } = this.options
+
+        const props: string[] = []
+
+        for (let middleware of middlewares) {
+            for (let p of middleware.props) {
+                if (!props.includes(p)) props.push(p)
+            }
+        }
 
         project = typeof project === 'string' ? getProject(project) : project
 
@@ -86,7 +90,18 @@ class TheatreStagger<T> {
         elements.forEach((element: T, index: number) => {
             const timeline = (project as Project).getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
             const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
-            theatreObject.onValuesChange((values: $FixMe) => onValueChanges(element, values))
+            theatreObject.onValuesChange((values: $FixMe) => {
+                let doneWithMiddlewares = false
+                for (let middleware of middlewares) {
+                    if (doneWithMiddlewares) {
+                        break
+                    }
+                    doneWithMiddlewares = true
+                    middleware.onValueChanges(element, values, () => {
+                        doneWithMiddlewares = false
+                    })
+                }
+            })
             this.timelines.push(timeline)
         })
     }
