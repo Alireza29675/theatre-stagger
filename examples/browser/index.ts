@@ -1,7 +1,7 @@
 import { getProject } from 'theatre'
 import createTheatreStagger from '../../src'
 
-import { TMiddleware } from '../../src/types'
+import { IMiddleware } from '../../src/types'
 import { getAll } from './grid'
 
 const $ = (q: string) => document.querySelector(q)
@@ -10,7 +10,7 @@ const project = getProject('Stagger Example')
 
 const allMyCells = getAll()
 
-const opacityMiddleware: TMiddleware<HTMLDivElement> = {
+const opacityMiddleware: IMiddleware<HTMLDivElement> = {
     onValueChanges: (element, values, next) => {
         const { opacity } = values
         element.style.opacity = opacity
@@ -19,7 +19,7 @@ const opacityMiddleware: TMiddleware<HTMLDivElement> = {
     props: ['opacity'],
 }
 
-const transformMiddleware: TMiddleware<HTMLDivElement> = {
+const transformMiddleware: IMiddleware<HTMLDivElement> = {
     onValueChanges: (element, values, next) => {
         const { scale, rotation } = values
         element.style.transform = `rotate(${rotation}deg) scale(${scale})`

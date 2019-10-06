@@ -222,7 +222,7 @@ class TheatreStagger<T> {
 
 const createTheatreStagger: TCreateTheatreStagger = (name, options, mode = 'default') => {
     const stagger = new TheatreStagger(name, options, mode)
-    const api: ITheatreStaggerFinalAPI = {
+    const api: ITheatreStaggerFinalAPI<any> = {
         clone: newMode => createTheatreStagger(name, options, newMode),
         pause: () => stagger.pause(),
         play: playOptions => stagger.play(playOptions),
