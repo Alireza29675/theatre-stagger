@@ -1,8 +1,8 @@
 import { getProject } from 'theatre'
 import createTheatreStagger from '../../src'
 
-import { getAll } from './grid'
 import { TMiddleware } from '../../src/types'
+import { getAll } from './grid'
 
 const $ = (q: string) => document.querySelector(q)
 
@@ -11,27 +11,27 @@ const project = getProject('Stagger Example')
 const allMyCells = getAll()
 
 const opacityMiddleware: TMiddleware<HTMLDivElement> = {
-    props: ['opacity'],
     onValueChanges: (element, values, next) => {
         const { opacity } = values
         element.style.opacity = opacity
         next()
     },
+    props: ['opacity'],
 }
 
 const transformMiddleware: TMiddleware<HTMLDivElement> = {
-    props: ['scale', 'rotation'],
     onValueChanges: (element, values, next) => {
         const { scale, rotation } = values
         element.style.transform = `rotate(${rotation}deg) scale(${scale})`
         next()
     },
+    props: ['scale', 'rotation'],
 }
 
 const stagger = createTheatreStagger('Test', {
-    project,
     elements: allMyCells,
     middlewares: [opacityMiddleware, transformMiddleware],
+    project,
 })
 
 const blink = stagger.clone('Blink')

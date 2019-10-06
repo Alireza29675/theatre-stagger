@@ -71,9 +71,11 @@ class TheatreStagger<T> {
 
         const props: string[] = []
 
-        for (let middleware of middlewares) {
-            for (let p of middleware.props) {
-                if (!props.includes(p)) props.push(p)
+        for (const middleware of middlewares) {
+            for (const p of middleware.props) {
+                if (!props.includes(p)) {
+                    props.push(p)
+                }
             }
         }
 
@@ -92,7 +94,7 @@ class TheatreStagger<T> {
             const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
             theatreObject.onValuesChange((values: $FixMe) => {
                 let doneWithMiddlewares = false
-                for (let middleware of middlewares) {
+                for (const middleware of middlewares) {
                     if (doneWithMiddlewares) {
                         break
                     }
