@@ -41,7 +41,7 @@ const DEFAULT_PLAY_OPTIONS: IPlayOptions = {
     mode: 'continue',
     rate: 1,
     reverse: false,
-    sort: 'center',
+    sort: 'normal',
 }
 
 const DEFAULT_STAGGER_OPTIONS: Partial<IStaggerOptions<$IntentionalAny>> = {}
@@ -54,7 +54,6 @@ class TheatreStagger<T> {
     private options: IStaggerOptions<T>
     private previousSortingMethod?: IPlayOptions['sort']
     private currentPlayingOptions: IPlayOptions = DEFAULT_PLAY_OPTIONS
-    private configProps: Record<string, NumberPropTypeDescriptor>
     private timelines: Timeline[]
     private steps: number[] | number[][] = []
     private currentStep: number = 0
@@ -69,19 +68,7 @@ class TheatreStagger<T> {
         const { filter, middlewares } = this.options
         let { project, elements } = this.options
 
-        const props: string[] = []
-
-        for (const middleware of middlewares) {
-            for (const p of middleware.props) {
-                if (!props.includes(p)) {
-                    props.push(p)
-                }
-            }
-        }
-
         project = typeof project === 'string' ? getProject(project) : project
-
-        this.configProps = propsArrayToObject(props)
 
         if (filter) {
             elements = elements.filter(filter)
@@ -91,19 +78,14 @@ class TheatreStagger<T> {
         this.timelines = []
         elements.forEach((element: T, index: number) => {
             const timeline = (project as Project).getTimeline(`${this.name} / ${this.mode}`, `Element ${index}`)
-            const theatreObject = timeline.getObject(`Properties`, element, { props: this.configProps })
-            theatreObject.onValuesChange((values: $FixMe) => {
-                let doneWithMiddlewares = false
-                for (const middleware of middlewares) {
-                    if (doneWithMiddlewares) {
-                        break
-                    }
-                    doneWithMiddlewares = true
-                    middleware.onValueChanges(element, values, () => {
-                        doneWithMiddlewares = false
-                    })
-                }
-            })
+            for (const middleware of middlewares) {
+                const tObject = timeline.getObject(middleware.name, element, {
+                    props: propsArrayToObject(middleware.props),
+                })
+                tObject.onValuesChange((values: $FixMe) => {
+                    middleware.onValueChanges(element, values, () => {})
+                })
+            }
             this.timelines.push(timeline)
         })
     }

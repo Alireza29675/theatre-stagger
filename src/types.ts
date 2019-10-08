@@ -14,6 +14,7 @@ export interface ITheatreStaggerFinalAPI<T> {
 }
 
 export interface IMiddleware<T = any> {
+    name: string
     props: string[]
     onValueChanges: (element: T, values: any, next: () => void) => void
 }
